@@ -1,0 +1,42 @@
+int a = 5 + 10 * 3 / 6;
+bool b = true && false || (true);
+int c = a * 5 - 8;
+
+if (b) {
+    int d = 1;
+}
+
+int e = 0;
+if (false) {
+    e = 3;
+} else {
+    e = 5;
+}
+
+if (a > c) {
+    bool f = false;
+}
+
+int result = 1;
+int factorial = 5;
+for (int a = 1; a <= factorial; ++a) {
+    result = result * a;
+}
+
+int feb0 = 0;
+int feb1 = 1;
+int feb_res = 0;
+int feb = 10;
+
+if (feb == 1) {
+    feb_res = 1;
+}
+int counter = 2;
+while (counter < feb) {
+    if (feb > 1) {
+        feb_res = feb0 + feb1;
+        feb0 = feb1;
+        feb1 = feb_res;
+        ++counter;
+    }
+}
