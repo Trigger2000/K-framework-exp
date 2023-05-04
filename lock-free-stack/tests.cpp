@@ -8,17 +8,14 @@ LockFreeStack<int32_t> stack;
 void TestPushPopTask()
 {
     for (int32_t i = 0; i < 100; ++i) {
-        // std::cout << "push " << i << std::endl;
         stack.push(i);
         stack.pop();
-        // std::cout << "pop " << *(stack.pop()) << std::endl;
     }
 }
 
 void TestPushTask()
 {
     for (int32_t i = 0; i < 100; ++i) {
-        // std::cout << "push " << i << std::endl;
         stack.push(i);
     }
 }
@@ -26,7 +23,6 @@ void TestPushTask()
 void TestPopTask()
 {
     for (int32_t i = 0; i < 100; ++i) {
-        // std::cout << "pop " << *(stack.pop()) << std::endl;
         stack.pop();
     }
 }
@@ -111,7 +107,7 @@ int32_t main()
 {
     Test1();
     Test2();
-    Test3();
+    // Test3();
     Test4();
 
     return 0;

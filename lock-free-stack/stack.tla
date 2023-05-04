@@ -15,7 +15,7 @@ define
     FinishedEmpty == Len(stack_var) = 0
 end define;
 
-process pusher \in 1..5
+process worker \in 1..5
 variables
     head_push = "",
     head_pop = "",

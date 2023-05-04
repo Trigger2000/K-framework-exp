@@ -5,13 +5,14 @@
 #include <memory>
 #include <thread>
 
-#include <iostream>
+#include <stdio.h>
 
 template<typename T>
 class LockFreeStack {
 public:
     void push(T const& data)
     {
+        fwrite("0", sizeof(char), 1, log_file_);
         Node* const new_node = new Node(data);
         new_node->next_ = head_.load();
         while (!head_.compare_exchange_weak(new_node->next_, new_node));
@@ -19,6 +20,7 @@ public:
 
     std::shared_ptr<T> pop()
     {
+        fwrite("1", sizeof(char), 1, log_file_);
         ++threads_in_pop_; 
         Node* old_head = head_.load();
         while (old_head && !head_.compare_exchange_weak(old_head, old_head->next_));
@@ -96,6 +98,8 @@ private:
     std::atomic<Node*> to_be_deleted_ = nullptr;
     std::atomic<unsigned> threads_in_pop_ = 0;
     std::atomic<Node*> head_ = nullptr;
+
+    FILE *log_file_ = fopen("log.txt","w");
 };
 
 #endif // LOCK_FREE_STACK_H
