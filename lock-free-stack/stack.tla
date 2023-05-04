@@ -1,36 +1,88 @@
 ---- MODULE stack ----
 
-EXTENDS Sequences, Integers, TLC, FiniteSets
+EXTENDS Sequences, Integers, TLC
 
 (*--algorithm stack
 
 variables
-    stack = <<>>,
+    stack_var = <<>>,
+    memory_order_seq_lock = 0,
 
-\* temporal property
 define
-    FinishEmpty == Len(stack) = 0
+    \* invariant
+    NoRaceCondition == memory_order_seq_lock <= 1
+    \* temporal property
+    FinishedEmpty == Len(stack_var) = 0
 end define;
 
-process workers \in 1..4
+process pusher \in 1..5
 variables
-    push_counter = 0,
-    pop_counter = 0
+    head_push = "",
+    head_pop = "",
 
 begin
-push:
-    while push_counter < 10 do
-        push_counter := push_counter + 1;
-        stack := Append(stack, push_counter);
-    end while;
+push1:
+    await memory_order_seq_lock = 0;
+    memory_order_seq_lock := memory_order_seq_lock + 1;
+    if stack_var /= <<>> then
+        head_push := Head(stack_var);
+    else
+        \* special case for empty stack_var
+        stack_var := Append(stack_var, Len(stack_var));
+        goto push_unlock2;
+    end if;
 
-pop:
-    while pop_counter < 10 do
-        pop_counter := pop_counter + 1;
-        stack := SubSeq(stack, 1, Len(stack)-1);
-    end while;
+push_unlock1:
+    memory_order_seq_lock := memory_order_seq_lock - 1;
+
+push2:
+    \* something like CAS
+    await memory_order_seq_lock = 0;
+    
+    if stack_var = <<>> then
+        goto push1;
+    else
+        if head_push = Head(stack_var) then
+            memory_order_seq_lock := memory_order_seq_lock + 1;
+            stack_var := Append(stack_var, Len(stack_var));
+        else
+            goto push2;
+        end if;
+    end if;
+
+push_unlock2:
+    memory_order_seq_lock := memory_order_seq_lock - 1;
+
+pop1:
+    await memory_order_seq_lock = 0;
+    memory_order_seq_lock := memory_order_seq_lock + 1;
+    if stack_var /= <<>> then
+        head_pop := Head(stack_var);
+    else
+        goto pop_unlock2;
+    end if;
+
+pop_unlock1:
+    memory_order_seq_lock := memory_order_seq_lock - 1;   
+
+pop2:
+    \* something like CAS
+    await memory_order_seq_lock = 0;
+    if stack_var = <<>> then
+        goto pop1;
+    else
+        if head_pop = Head(stack_var) then
+            memory_order_seq_lock := memory_order_seq_lock + 1;
+            stack_var := SubSeq(stack_var, 1, Len(stack_var)-1);
+        else
+            goto pop2;
+        end if;
+    end if;
+
+pop_unlock2:
+    memory_order_seq_lock := memory_order_seq_lock - 1;
+
 end process;
-
 
 end algorithm;*)
 ===================================
